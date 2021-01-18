@@ -1,0 +1,40 @@
+
+fileの作成
+
+	$ touch file_name.txt
+
+
+	$ cat file_name.txt
+	
+	//Tabで補完できる
+	
+	//create dir
+	$ mkdir file_name
+	
+	//current_dir
+	
+	$ cd -- cdのみの場合ホームディレクトリに移動
+	
+	//rute_dir
+	$ /
+	
+	//print_working_dir
+	$pwd
+	
+	//dir中身を表示
+	$ ls
+	
+	
+	//一つ親のdir
+	$ cd ..
+	
+	//移動・名前の変更
+	$ mv file dir
+	
+	//copy file dir
+	$ cp
+	$ cp -r
+	
+	//remove file dir
+	$ rm file
+	$ rm -r dir
