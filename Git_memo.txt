@@ -1,0 +1,32 @@
+
+
+//Gitの準備
+	$ git init
+
+	$ git add <file.name>
+	$ git add index.html
+	
+	$ git commit -m "Create index.html"
+	
+	$ git remote add origin https://prog-8.com/mysite.git
+	
+	//ファイルをアップロードする
+	$ git push origin master
+	
+	//ファイルをダウンロードする
+	$ git pull origin master
+	
+	//変更したfileを把握する, addされたfileを把握する
+	$ git status
+	
+	//へ効果書を把握する
+	$ git diff
+	
+	//commit historyを把握する
+	$ git log
+	
+	//commit history 変更内容のみ把握
+	$ git log -p
+	
+	※「q」ボタンで終了
+	

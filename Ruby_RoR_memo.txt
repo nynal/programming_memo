@@ -1,0 +1,431 @@
+Plograming_note Ruby, Ruby on Rails
+
+<Ruby>
+
+//代入と出力
+	Say = "Hello World"
+	puts Say
+
+//配列と全部処理
+	SayTwo = ["hello",
+			"world",
+			"japan"
+	]
+	
+	
+	SayTwo.each do |word|
+	puts word
+	end
+	
+	
+	
+	
+<RoR>
+
+//モデルとテーブルの作成
+
+//Rails Applicationの作成
+
+	$ rails new tweet_app
+
+//開発中のものをブラウザで表示する準備
+
+	$ rails server
+
+//Top Pageを自動生成する
+
+	$ rails generate controller home top
+	
+//テーブル(データベース作成)の準備
+
+	$ rails generate model Post content:text
+	※postsテーブルを作成する場合はPostと単数形にする
+	
+//画像の追加
+	
+	public folderに保存
+	"/name.png"などですぐに使える
+
+
+//Userモデルにstring型のnameカラムを作る
+	$ rails generate User name:string email:string
+	
+//データベースに変更を反映
+	$ rails db:migrate
+	
+//routes.rbに:idを入力すると・・・
+
+	get "posts/:id" => "posts#show"
+	posts/ はすべてルートがおなじになる
+	
+	
+//カラムの追加
+	
+	$ rails generate migration add_image_name_to_users
+	
+	<db/migration file>
+		def change
+			add_column :users, image_name, :string
+		end
+	
+	$ rails db:migrate
+	
+	
+//バリデーションの追加  /app/models/rb_file
+	
+//空文字の入力をブロックする
+	validates :content, {presence: true}
+	
+//141文字以上の入力をブロックする
+	validates :content, {length: {maximum: 140}}
+	
+//同じデータの重複を防ぐ
+	validates :email, {uniquness: true}
+	
+//rails console
+
+//すべての情報を作成された順に取り出す :desc昇順 :asc降順
+	@post = Post.all.order(created_at: :desc)
+	
+//HTMLでRubyを使うときeach文
+	<% @posts.each do |post| %>
+	<%= post %>
+	<% end %>
+	
+//フォームの送信先のURLを設定するには、form_tagを利用します。
+	<%= form_tag("送信先URL") do %>
+	 フォームの中身
+	<% end %>
+	
+<input>タグの初期値にRubyのコードを使うには
+、<%= %>を用いて「value="値"」の「" "」の中にRubyのコードを埋め込みます。
+
+flashはflash[:notice] = "メッセージ"としてください。一時的に保存される性質がある。
+ページが移動されると消える。
+
+
+<input>タグに「type="file"」を追加することで、画像ファイルを選択するボタンを表示することが出来ます。
+画像の送信は特殊なので、form_tagの第2引数に{multipart: true}を追加する必要があります。
+
+	<%= form_tag("/users/#{@user.id}/update", {multipart: true}) do %>
+	
+		<input name="image_name" type="file">
+		<input type="submit" value="保存">
+	<% end %>
+	
+	
+画像データをpublic/imagesフォルダに保存しましょう。
+以下のように、binwriteメソッドとreadメソッドを用います。
+File.binwrite("public/user_images/#{画像名}", 画像データ.read)
+	
+	def update
+	    @user = User.find_by(id: params[:id])
+	    @user.name = params[:name]
+	    @user.email = params[:email]
+	    
+	    if params[:image]
+	      @user.image_name = "#{@user.id}.jpg"
+	      image = params[:image]
+	      File.binwrite("public/user_images/#{@user.image_name}", image.read)
+	    end
+	    
+	    if @user.save
+	      flash[:notice] = "ユーザー情報を編集しました"
+	      redirect_to("/users/#{@user.id}")
+	    else
+      		render("users/edit")
+      	end
+    end
+	
+	
+//変数session
+ページを移動してもユーザー情報を保持し続けるために、sessionという特殊な変数を用います。sessionに代入された値は、ブラウザ(InternetExplorer, GoogleChrome等)に保存されます。sessionに値を代入すると、ブラウザはそれ以降のアクセスでsessionの値をRailsに送信します。
+
+
+具体的にsessionに値を代入するときには、左の図のようにuser_idをキーとし、値を代入します。右の図のように、@userが存在する場合に変数sessionに@user.idを代入することで、特定したログインユーザーの情報が保持され続けます。
+
+
+	def login
+		@user = User.find_by(...)
+		if @user
+			session[:user_id] = @user.id
+		else...
+//
+
+
+ログアウトする、つまり「ログイン状態でなくする」にはsession[:user_id]の値を空にします。図のようにsession[:user_id]にnilを代入することで、session[:user_id]の値を空にすることができます。
+
+ログアウト機能を実装するために、logoutアクションを用意しましょう。logoutのルーティングはloginと同様に、「get」ではなく「post」とします。また、ログアウト後はログインページにリダイレクトしましょう。
+
+	<routes.rb>
+	
+	post "logout" => "users#logout"
+	
+	
+	<users_controller.rb>
+	
+	def logout
+		session[:user_id] = nil
+		flash[:notice] = "ログアウトしました"
+		redirect_to("/login")
+	end
+
+
+//常にログインした状態にする
+ユーザー登録が成功した時に、作成したユーザーがそのままログイン状態になるようにしましょう。usersコントローラのcreateアクション内で作成したユーザーのidをsession[:user_id]に代入しましょう。
+
+
+	def create
+		@user = User.new(
+			name: params[:name],
+			email: params[:email],
+			image_name: "default_user.jpg",
+			password: params[:password]
+		)
+		
+		if @user.save
+			session[:user_id] = @user.id
+		end
+	end
+
+
+
+
+//ユーザー名の表示(.html.erb)
+
+<% current_user = User.find_by(id: session[:user_id]) %>
+
+<li>
+	<%= link_to(current_user.name, "/users/#{current_user.id}") %>
+</li>
+
+?viewで定義する理由は？
+application.html.erbは全てのアクションで呼び出されるため、application.html.erbでアクション側の変数を使おうとすると、図のように全アクションで@current_userを定義する必要があります。
+
+各コントローラの全アクションで共通する処理がある場合には、before_actionを使うと便利です。before_actionを用いることで、アクションが呼び出される際に必ずbefore_actionの処理が実行されます。
+これにより、全アクションで共通する処理を1箇所にまとめることができます。
+
+全てのコントローラで共通する処理はapplicationコントローラにまとめることができます。図のようにログイン中のユーザーを取得するset_current_userメソッドを定義し、before_actionに指定しましょう。これで、全コントローラの全アクションで@current_userを定義することができます。
+
+
+	application_controller.rb
+	
+	before_action:set_current_user
+				
+	中略
+	
+	def set_current_user
+		@current_user = User.find_by(id: session[:user_id])
+	end
+
+
+
+
+ログインしていない場合でも、左図のようにURLを直接入力するとアクセスできてしまいます。右図のような処理を作成し、@current_userがいない場合にはログインページにリダイレクトするようにしましょう。しかし、この処理は他のアクションや他のコントローラでも使いたいので、applicationコントローラとbefore_actionを用いて処理を共通化させましょう。
+
+<posts_controller.rb>
+	def new
+		if @current_user == nil
+			flash[:notice] = "ログインが必要です"
+			redirect_to("/login")
+		end
+	
+	end
+	
+
+左図のようにapplicationコントローラにauthenticate_userというメソッドを作成し、アクセス制限の処理を共通化します。authenticate_userは「ユーザーを認証する」という意味です。また、今回は全アクションに適用したい訳ではないので、各コントローラの各アクションでbefore_actionを適用する方法を見ていきましょう。
+
+<application_controller.rb>
+	def authenticate_user
+		if @current_user == nil
+			flash[:notice] = "ログインが必要です"
+			redirect_to("/login")
+		end
+	end
+
+図のように、onlyを用いて各コントローラでbefore_actionを使うことで、指定したアクションでのみそのメソッドを実行することができます。各コントローラは、applicationコントローラを継承しているので、継承元のメソッドを使うことができます。
+
+<users_controller.rb>
+	
+	before_action:authenticate_user,{only:[:edit, :update]}
+	
+
+
+applicationコントローラ内に「ログインユーザーを禁止する」という意味の、forbid_login_userメソッドを作成しましょう。
+このメソッドでは、ログインユーザーが存在する場合、投稿一覧ページにリダイレクトするようにします。メソッドの実行にはbefore_actionを用い、onlyで適用したいアクションを指定しましょう。
+
+
+<application_controller.rb>
+	def forbid_login_user
+		if @current_user
+			flash[:notice] = "すでにログインしています"
+			redirect_to("/posts/index")
+		end
+	end
+
+<home_controller.rb>
+	before_action:forbid_login_user,{only:[:top]}
+	
+<users_controller.rb>
+	before_action:forbid_login_user,{only:[:new, :create, :login_form, :login]}
+
+
+
+ユーザー詳細ページで、ログインしているユーザーではない場合には編集ページへのリンクを非表示にしましょう。
+以下の図のように、@userと@current_userのそれぞれのidが等しいかどうかで、表示するか否かを判断します。
+
+<users/show.html.erb>
+
+	<% if @user.id == @current_user.id %>
+		
+		<%= link_to("編集", "/users/#{@user.id}/edit") %>
+	
+	<% end %>
+	
+usersコントローラのeditアクションおよびupdateアクションに制限をかけましょう。「正しいユーザーかを確かめる」という意味のensure_correct_userメソッドを用意し、ログイン中のユーザーのidと編集したいユーザーのidが等しいか判定します。等しくなかった場合はフラッシュを表示し、投稿一覧ページにリダイレクトさせましょう。
+
+
+ログイン中のユーザーのidは@current_user.idに、編集したいユーザーのidはparams[:id]にそれぞれ代入されています。しかし、params[:id]で取得できる値は文字列であり、数値である@current_user.idと比較してもfalseとなります。to_iメソッドを用いると、文字列を数値に変換することができます。to_iメソッドでparams[:id]を数値に変換し、@current_user.idと比較しましょう。
+
+
+<users_controller.rb>
+
+before_action :ensure_correct_user, {only:[:edit, :update]}
+
+	def ensure_correct_user
+		if @current_user.id != params[:id].to_i
+		
+			flash[:notice] = "権限がありません"
+			redirect_to("/posts/index")
+		end
+	end
+	
+	
+
+//{method: post} ルーティングのポストを探してマッチしてくれる
+
+ <%= link_to("削除", "/posts/#{@post.id}/destroy", {method: "post"}) %>
+
+
+
+ 
+
+
+//<controller> before_action 全アクションで共通する処理
+//
+
+	<application_controller.rb>
+	before_action :set_current_user
+	
+	def set_current_user
+		@current_user = User.find_by(id: session[:user_id])
+	end
+	
+	def authenticate_user
+		if @current_user == nil
+			flash[:notice] = "ログインが必要です"
+			redirect_to("/login")
+		end
+	end
+	
+	def forbid_login_user
+		if @current_user
+			flash[:notice] ="すでにログインしています"
+			redirect_to("/posts/index")
+		end
+	end
+	
+	def ensure_correct_user
+		if params[:id].to_i != @current_user.id
+			flash[:notice] = "権限がありません"
+			redirect_to("/posts/index")
+		end
+	end
+
+	<users_controller.rb>
+	before_action :set_current_user, {only: [:edit, :update]}
+	
+	
+
+//where method
+
+ある条件に合致する「複数の」データを取得するには、whereメソッドを
+用いる必要があります。
+
+$ rails console
+	posts = Post.where(user_id: 1)
+	
+	
+
+//いいね済みかどうか(条件分岐)
+<posts/show.html.erb>
+	
+	<% if Like.find_by(user_id: @current_user.id, post_id: @post.id) %>
+	
+		いいね！済み
+	
+	<% else %>
+		
+		いいね！していません
+	
+	<% end %>
+
+
+
+//likes controllerを用意しよう
+	今までコントローラは「rails g controller」コマンドで自動生成してきました。コマンドを用いるとビューファイルなども自動生成されますが、今回はそれらのビューファイルが必要ないので、コントローラを手動で作ってみましょう。controllersフォルダ内に「likes_controller.rb」というファイルを新規作成し、右の図のように大枠を記述するだけで作ることができます。
+	
+	create action
+	作成したlikesコントローラに、新たにLikeデータを作成するためのcreateアクションを用意しましょう。createはデータベースにデータを作成するアクションですので、ルーティングには「post」を用います。
+URLの部分は「どの投稿をいいねしたのか」という情報を送信するために、「likes/:post_id/create」としましょう。
+
+
+
+
+//link_to method でアイコンを表示する
+link_toメソッドでハートアイコンを表示してみましょう。
+下の図のように、<%= link_to("URL") do %>と<% end %>の間に<span>を書き、「fa fa-heart 」というクラス名をつけることでハートアイコンのリンクを作ることができます
+
+ <%= link_to("/likes/#{@post.id}/create", {method: "post"}) do %>
+ 	
+ 	<span class="fa fa-heart like-btn"></span>
+ 	
+ <% end %>
+ 
+ 
+ //count method
+ likesテーブルからデータの件数を取得するには、countメソッドを用います。countメソッドは配列の要素数を取得するメソッドですが、テーブルのデータ数を取得するためにも利用することができます。
+
+	$rails console
+	Like.all.count
+	
+	Like.where(post_id: 1).count
+	
+
+//migration file の作成
+rails g migrationコマンドを用いてマイグレーションファイルを作成しましょう。今回は複数のカラムを変更するため、change_users_columnsという名にしましょう。ファイルを作成したら、まず右の図のようにpassword_digestカラムが追加されるよう、マイグレーションファイルを編集しましょう
+
+$ rails g migration change_users_columns
+
+	<class ChangeUsersColumns >
+		def change
+			add_column :users, :password_digest, :string
+			remove_column :users, :password, :string
+		end
+	end
+	
+$rails db:migrate
+//authenticate method
+has_secure_passwordメソッドを有効にすると、authenticateメソッドを使えるようになります。authenticateメソッドは渡された引数を暗号化し、password_digestの値と一致するかどうかを判定してくれます。
+右の図のようにauthenticateメソッドを使って、「送信されたメールアドレスと一致するユーザー」のpassword_digestと、送信されたパスワードが一致するかどうかでログイン処理をします。
+
+	@user.authenticate("wanko")
+	
+	<users_controller.rb>
+		@user = User.find_by(email: params[:email])
+		if @user && @user.authenticate(params[:password])
+		/
+		/
+		end
+	end
+	

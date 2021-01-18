@@ -1,0 +1,209 @@
+
+SQL memo
+
+	
+	
+	//データの取得
+	
+	purchases table からname column dateを取り出す
+
+		SELECT name
+		FROM purchases;
+	
+	//複数、全てのデータを取得
+		
+		SELECT id, name, price
+		FROM purchases;
+		
+		SELECT *
+		FROM purchases;
+		
+		
+	//特定のデータの取得
+	
+		SELECT *
+		FROM purchases
+		WHERE category = "食費";
+		
+	//特定の文字を含むデータの取得
+	
+		SELECT *
+		FROM purchases
+		WHERE name LIKE "%文字列%";
+		
+		
+		文字列で始まるデータの取得
+		
+		SELECT *
+		FROM purchases
+		WHERE name LIKE "文字列%";
+		
+		SELECT *
+		FROM purchases
+		WHERE name LIKE "%文字列";
+		
+		
+	//NULLデータ
+		
+		SELECT *
+		FROM price IS NULL;
+		
+		SELECT *
+		FROM price IS NOT NULL;
+		
+		
+	//AND OR 演算子
+	
+		SELECT * FROM purchases
+		WHERE character_name ="ひつじ仙人"
+		AND category ="食費";
+		
+		SELECT * FROM purchases
+		WHERE character_name ="ひつじ仙人"
+		OR character_name ="にんじゃわんこ";
+		
+	
+	//並び替え
+		
+		降順
+		SELECT * FROM purchases
+		ORDER BY price DESC;
+		
+		昇順
+		SELECT * FROM purchases
+		ORDER BY price ASC;
+		
+		
+	//最大で何件取得するか
+		
+		SELECT *
+		FROM purchases
+		LIMT 5;
+		
+		
+SQL_2		
+		
+	//重複データの削除
+		
+		SELECT DISTINCT(name)
+		FROM purchasses;
+		
+	//四則演算など
+	
+		SELECT name, price * 1.08
+		FROM purchases;
+		
+		SELECT SUM(price)
+		FROM purchases;
+		WHERE character_name = "にんじゃわんこ";
+		
+		SELECT AVG(price)
+		FROM purchases;
+		
+		SELECT COUNT(price)
+		FROM purchases;
+		
+		SELECT COUNT(*)
+		FROM purchases
+		WHERE character_name = "にんじゃわんこ";
+		
+		SELECT MAX(price)
+		FROM purchases;
+		
+		SELECT MIN(price)
+		FROM purchases;
+		
+		
+	//グループ化と集計
+	
+		SELECT SUM(price), purchased_at, character_name
+		FROM purchases
+		GROUP BY purchased_at, character_name;
+		
+		
+		SELECT SUM(price), purchased_at, character_name
+		FROM purchases
+		WHERE category ="食費"
+		GROUP BY purchased_at, character_name;
+		
+	//特定のグループのみのデータを取得
+	
+		SELECT SUM(price), purchased_at, character_name
+		FROM purchases
+		GROUP BY purchased_at, character_name
+		HAVING SUM(price) > 1000;
+		
+	
+	//サブクエリ 1 = 2
+	1
+		SELECT goals
+		FROM players
+		WHERE name = "ウィル";
+		
+		SELECT name
+		FROM players
+		WHERE goals > 14;
+	
+	2
+		SELECT name
+		FROM players
+		WHERE goals > (
+		
+			SELECT goals
+			FROM players
+			WHERE name ="ウィル"
+		);
+		
+	
+	//カラム名に別名を定義
+	
+		SELECT goals AS "ウィルの得点数"
+		FROM players
+		WHERE name = "ウィル";
+	
+	
+	//テーブルを紐付ける
+	
+		SELECT *
+		FROM players
+		JOIN countries
+		ON players.country_id = countries.id;
+		
+		※NULLのレコードは取得されない
+		
+		
+		SELECT *
+		FROM players
+		LEFT JOIN teams
+		ON players.previous_team_id = teams.id
+		JOIN countries
+		ON players.country_id = countries.id
+		;
+		
+SQL_3
+	
+	//テーブルにデータを追加する
+		
+		INSERT INTO students (id, name, course)
+		VALUES(4, "Kate", "Java");
+	
+	AUTO INCREMENT機能　idは自動で増加して割り当てられる
+		INSERT INTO students (　, name, course)
+		VALUES(　, "Kate", "Java");
+	
+	//データの更新
+	
+		UPDATE students
+		SET name = "Jordan", course = "HTML"
+		WHERE id = 6;
+		
+	
+	//データ削除
+		
+		DELETE FROM students
+		WHERE id = 7;
+		
+		
+	※	UPDATE DELETE実行後はデータを戻すことができません。
+		実行前に一度SELECTを実行して、操作するデータを確認する習慣をつけましょう。
+		

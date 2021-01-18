@@ -1,0 +1,266 @@
+//hello world
+
+	console.log("Hello World");
+
+
+//変数
+
+	let name = "John";
+	const ="Kate";
+	var = ...
+	
+	
+//テンプレートリテラル ※バッククォーてションで囲まないといけない
+	
+	console.log(`こんにちは`${name}さん`);
+	
+
+//if文
+	
+	let number = 10;
+	if(number >= 10){
+		console.log("numberは10より大きいです");
+	} else {
+		console.log("numberは10より小さいです");
+	}
+	
+	
+//switch文
+	
+	let color = "赤";
+	switch(color){
+	
+		case "赤":
+			console.log("Stop!!");
+			break;
+			
+		case "青":
+			console.log("Go!");
+			break;
+		default:
+			console.log("colorの値が正しくありません");
+			break;
+	}
+
+
+//while for
+
+	let number1 = 1;
+	while(number <= 10){
+		console.log(number);
+		number++;
+	}
+	
+	for(let i = 0; i <= 10; i++){
+		console.log(i);
+	}
+
+
+//配列 pushMethod forEachMethod findMethod filterMethod mapMethod collBackMethod
+	
+	const fruits = ["apple", "banana", "orange"];
+	
+	console.log(fruits[0]);
+
+	for(let i = 0; i < fruits.length; i++){
+		console.log(fruits[i]);
+	}
+	
+	fruits.push("pinapple");
+	
+	fruits.forEach((fruit) => {
+		console.log(fruit)
+	});
+	
+	const foundFruit = fruits.find((fruit) => {
+		return fruit === "orange";
+	});
+	
+	console.log(foundFruit);
+	
+	const fruitNames = fruits.map((fruit) => {
+		return fruit + "おいしい";
+	});
+
+
+//オブジェクト
+	
+	const items = [
+		{name: "手裏剣", price: 300},
+		{name: "忍者刀", price: 1200}
+	]
+
+	console.log(items[1].price);
+
+// undefined
+	
+	for(let i = 0; i < items.rength; i++){
+		if(items[i].price === undefined){
+			console.log("Price Less");
+		} else {
+			console.log(items[i].price);
+		}
+	}
+	
+
+//アロー関数
+
+	const introduce = function(){
+		console.log("Hello World");
+	}
+
+	const introduce2 = () => {
+		console.log("Hello World");
+	}
+
+	introduce();
+	introduce2();
+	
+//引数
+
+	const introduce3 = (name, age) => {
+		console.log("Hello World");
+		console.log(`私は${name}です。${age}歳です`);
+	}
+	
+	introduce3("ninnja", 18);
+
+
+//Class instance
+
+	class Animal{
+		
+		constructor(name, age, price){
+			this.name = name;
+			this.age = age;
+			this.price = price;
+		}
+		
+		greet(){
+			console.log("こんにちは");
+		}
+		info(){
+			this.greet();
+			console.log(`私は${this.name}です。年齢は${this.age}歳です`);
+		}
+	}
+	
+	
+	
+	const animal = new Animal("Reo", 5, 50000);
+	const animal2 = new Animal("Koro", 4, 65000);
+	
+	animal.info();
+	animal2.info();
+	
+	
+//継承
+
+	class Dog extends Animal{
+	
+		getHumanAge(){
+			return this.age *7;
+		}
+		const humanAge = this.getHumanAge();
+		
+		collAge(){
+			console.log(`人間年齢で${humanAge}歳です`);
+		}
+	}
+	
+	const animal3 = new Dog("Momo", 3, 48000);
+	
+	animal3.collAge();
+	
+
+//construntorのoverRide super()
+	
+	class Vicle{
+		
+		constructor(name, price){
+			this.name = name;
+			this.price = price;
+		}
+	}
+	
+	class Car extends Vicle{
+		
+		constructor(name, price, owner){
+			super(name, price);
+			this.owner = owner;
+		}
+	}
+
+
+//fileの分割
+
+<vicle.js>
+
+	class Vicle{
+	}
+	export default Vicle;
+
+<car.js>
+
+	import Vicle from "./vicle";
+	class Car{
+	}
+
+
+//named export
+
+<dogDate.js>
+	
+	class DogDate{
+	const dog1 = new Dog("aaaa", 4);
+	const dog2 = new Dog("bbbb", 5);
+
+	}
+	export {dog1, dog2};
+	
+<script.js>
+
+	import {dog1, dog2} from "./dogDate";
+	dog1.info();
+	dog2.info();
+	
+	
+//相対パス
+	
+	./ 同じdir
+	../ ひとつ上の階層に移動
+	
+
+//package
+
+	import chalk from "chalk";
+	import readlineSync from "readline-sync";
+	
+	const name = readlineSync.question("名前を入力してください:");
+	const age = readlineSync.questionInt("年齢を入力してください");
+	
+
+//collbackMethod
+
+	const printWanko = () => {
+		console.log("にんじゃわんこ");
+	};
+	
+	const hello = (wasuremono) => {
+		
+		wasuremono();
+	};
+	
+	hello(printWanko);
+	
+
+
+	const hello = (wasuremono) => {
+		wasuremono();
+	};
+
+	hello(() => {
+		console.log("ninjawanko");
+	});
+	
+	
